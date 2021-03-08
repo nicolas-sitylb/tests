@@ -9,10 +9,11 @@ import json
 import numpy as np
 import pandas as pd
 import fiona
+import geojson
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from shapely import geometry, wkt
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, shape
 # %%
 
 def jprint(obj):
@@ -68,13 +69,14 @@ def get_feature_info(**kw):
             'geometryFormat': 'geojson'
        }
     )
-    if res.status_code == 200 and False:
+    if res.status_code == 200 and False: ## reset after tests
+        print("We got a record!")
         data = res.json()['results']
         data_keys = data[0].keys()  
         idx = data[0]['id']
         layerName = data[0]['layerName']
         bbox = bbox_to_polygon(data[0]['bbox'])
-        attributes = data[0]['attributes']
+        attributes = data[0]['attributes'] if data[0]['attributes'] else None
         layerBodId = data[0]['layerBodId']
         tile_geom = data[0]['geometry']['rings']
         srs = int([v for k,v in data[0]['geometry']['spatialReference'].items()][0])
@@ -113,7 +115,7 @@ def convert_list_of_tiles_to_gdf(tiles_list):
 
     return(gdf)
 
-def get_all_tiles():
+def get_all_tiles_district_nord_vaudois():
     col_min = 2498
     col_max = 2551
     row_min = 1153
@@ -122,19 +124,23 @@ def get_all_tiles():
     height = row_max - row_min
     cells = width * height
     blocks = int(math.ceil(cells/(4*height)))
-    res = []
+    data = []
     for row in range(height):
         for col in range(width):
-            st = str(col_min+i)+'_'+str(row_min+i)
+            st = str(col_min+col)+'_'+str(row_min+row)
             print(f"Tile: {st}")
-            res.append(get_feature_info(**{
-                    'search_field': 'name',
+            res = (get_feature_info(**{
+                    'search_field': 'id',
                     'search_text': st,
-                    'layer': 'ch.swisstopo.images-swissimage-dop10.metadata'
+                    'layer': 'ch.swisstopo.images-swissimage-dop10.metadata',
+                    'sr': 2056
                 })
             )
+            if len(res.json()['results']) == 1:
+                data.append(res.json()['results'][0])
 
-    gdf = gpd.GeoDataFrame(res)
+    gdf = gpd.GeoDataFrame(data)
+    gdf['geometry'] = gdf.apply(lambda x: shape(x['geometry']), axis=1)
     print("Processing finished successfully.")
 
     return (gdf)
@@ -145,7 +151,8 @@ def get_district(inname='vaudois'):
         'search_text': inname,
         'layer': 'ch.swisstopo.swissboundaries3d-bezirk-flaeche.fill'
     })
-    gdf = gpd.GeoDataFrame(pd.DataFrame.from_dict(res, orient='index').T)
+    data = res.json()['results'][0]
+    gdf = gpd.GeoDataFrame(pd.DataFrame.from_dict(data, orient='index').T)
 
     return (gdf)
 
