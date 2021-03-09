@@ -19,7 +19,7 @@ def extract_missing_tiles():
     
     matchings = [row_fa for row_fa in data_fa if row_fa.replace('_','-') in dataFe]
     missings = [row_fa for row_fa in data_fa if row_fa.replace('_','-') not in dataFe]
-    template = "https://data.geo.admin.ch/ch.swisstopo.swissimage-dop10/swissimage-dop10_{}-1180/swissimage-dop10_2020_{}_0.1_2056.tif"
+    template = "https://data.geo.admin.ch/ch.swisstopo.swissimage-dop10/swissimage-dop10_2020_{}/swissimage-dop10_2020_{}_0.1_2056.tif"
 
     missing_urls = []
     if len(missings)+len(matchings) != len(data_fa):
