@@ -26,7 +26,7 @@ def extract_missing_tiles():
         print("Error: sums of missing + matchings doesnt equals the length of the input data set!")
     else:
         print("Success!")
-        missing_urls = [template.format(missing, missing) for missing in missings]
+        missing_urls = [template.format(missing, missing.replace('_','-')) for missing in missings]
         with open('missing_tile_urls.csv', 'w') as f:
             for l in missing_urls:
                 f.write(f"{l}\n")
