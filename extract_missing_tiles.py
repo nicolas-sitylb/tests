@@ -18,7 +18,7 @@ def extract_missing_tiles():
     data_fa = [row_fa.strip('\n') for row_fa in data_fa]
     
     matchings = [row_fa for row_fa in data_fa if row_fa.replace('_','-') in dataFe]
-    missings = [row_fa for row_fa in data_fa if row_fa.replace('_','-') not in dataFe]
+    missings = [row_fa.replace('_','-') for row_fa in data_fa if row_fa.replace('_','-') not in dataFe]
     template = "https://data.geo.admin.ch/ch.swisstopo.swissimage-dop10/swissimage-dop10_2020_{}/swissimage-dop10_2020_{}_0.1_2056.tif"
 
     missing_urls = []
@@ -26,7 +26,7 @@ def extract_missing_tiles():
         print("Error: sums of missing + matchings doesnt equals the length of the input data set!")
     else:
         print("Success!")
-        missing_urls = [template.format(missing, missing.replace('_','-')) for missing in missings]
+        missing_urls = [template.format(missing, missing) for missing in missings]
         with open('missing_tile_urls.csv', 'w') as f:
             for l in missing_urls:
                 f.write(f"{l}\n")
