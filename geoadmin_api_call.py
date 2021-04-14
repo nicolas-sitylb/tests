@@ -64,7 +64,7 @@ def get_feature_info2(kw):
     data = res.json()['results']
     gdf = None
     if data:
-        G = gpd.GeoDataFrame(json_normalize(data))
+        G = gpd.GeoDataFrame(pd.json_normalize(data))
         g = gpd.GeoDataFrame(data)['geometry']
         gdf = pd.concat([G, g], axis=1)
         gdf['geometry'] = gdf['geometry'].apply(lambda x: shape(x))
@@ -181,7 +181,7 @@ def get_district(inname='vaudois'):
     data = res.json()['results'][0]
     gdf = gpd.GeoDataFrame(pd.DataFrame.from_dict(data, orient='index').T)
 
-    district = json_normalize(data)
+    district = pd.json_normalize(data)
     district['geometry'] = shape(data['geometry'])
     district = gpd.GeoDataFrame(district)
 
@@ -219,7 +219,3 @@ for i, tiles_list_file in enumerate(tiles_list_files):
     )
 # %%
 
-
-
-
-#%%
